@@ -3,7 +3,7 @@
 import numpy as np
 import pylab as plt
 
-from scikits import vectorplot as vp
+import vectorplot as vp
 
 dpi = 100
 size = 700
@@ -30,8 +30,10 @@ frame=0
 
 if video:
     kernellen = 62
-    for t in np.linspace(0,1,16*10):
-        kernel = np.sin(np.arange(kernellen)*np.pi/kernellen)*(1+np.sin(2*np.pi*5*(np.arange(kernellen)/float(kernellen)+t)))
+    steps = 125
+    turns = 3
+    for t in np.linspace(0,turns,steps,endpoint=False):
+        kernel = vp.kernels.hanning_ripples(N=kernellen,shift=t)
 
         kernel = kernel.astype(np.float32)
 

@@ -1,7 +1,7 @@
 import numpy as np
 import pylab as plt
 
-from scikits.vectorplot import lic_internal
+from vectorplot import lic_internal, kernels
 
 dpi = 100
 size = 700
@@ -34,12 +34,13 @@ frame=0
 
 if video:
     kernellen = 31
-    for t in np.linspace(0,1,16*5):
-        kernel = np.sin(np.arange(kernellen)*np.pi/kernellen)*(1+np.sin(2*np.pi*5*(np.arange(kernellen)/float(kernellen)+t)))
+    steps = 125
+    turns = 3
+    for t in np.linspace(0,turns,steps,endpoint=False):
+	k = kernels.hanning_ripples(shift=t)
+        k = k.astype(np.float32)
 
-        kernel = kernel.astype(np.float32)
-
-        image = lic_internal.line_integral_convolution(u, v, texture, kernel)
+        image = lic_internal.line_integral_convolution(u, v, texture, k)
 
         plt.clf()
         plt.axis('off')
