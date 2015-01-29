@@ -33,19 +33,31 @@ cdef void _advance(float vx, float vy,
     """
     
     cdef float tx, ty
+    cdef int zeros
+
+    zeros = 0
     
-    # Think of vx (vy) as the time it takes to reach the next pixel 
+    # Think of tx (ty) as the time it takes to reach the next pixel 
     # along x (y).
 
-    if vx>=0:
+    if vx>0:
         tx = (1-fx[0])/vx
-    else:
+    elif vx<0:
         tx = -fx[0]/vx
-    if vy>=0:
-        ty = (1-fy[0])/vy
     else:
+        zeros += 1
+        tx = 1e100
+    if vy>0:
+        ty = (1-fy[0])/vy
+    elif vy<0:
         ty = -fy[0]/vy
+    else:
+        zeros += 1
+        ty = 1e100
 
+    if zeros==2:
+        return
+    
     if tx<ty:    # We reached the next pixel along x first.
         if vx>=0:
             x[0]+=1
@@ -54,7 +66,6 @@ cdef void _advance(float vx, float vy,
             x[0]-=1
             fx[0]=1
         fy[0]+=tx*vy
-
     else:        # We reached the next pixel along y first.
         if vy>=0:
             y[0]+=1
@@ -78,7 +89,8 @@ def line_integral_convolution(
         np.ndarray[float, ndim=2] u,
         np.ndarray[float, ndim=2] v,
         np.ndarray[float, ndim=2] texture,
-        np.ndarray[float, ndim=1] kernel):
+        np.ndarray[float, ndim=1] kernel,
+        polarization=False):
     """Return an image of the texture array blurred along the local 
     vector field orientation. 
 
@@ -96,7 +108,10 @@ def line_integral_convolution(
       The convolution kernel: an array weighting the texture along
       the stream line. For static images, a box kernel (equal to one)
       of length max(nx,ny)/10 is appropriate. The kernel should be 
-      symmetric. 
+      symmetric.
+    polarization : boolean
+      If True, treat the vector field as a polarization (so that the
+      vectors have no distinction between forward and backward).
       
     Returns
     -------
@@ -110,8 +125,15 @@ def line_integral_convolution(
     cdef int h,w,kernellen
     cdef int t
     cdef float fx, fy, tx, ty
+    cdef float ui, vi, last_ui, last_vi
     cdef np.ndarray[float, ndim=2] result
+    cdef int pol
 
+    if polarization:
+        pol = 1
+    else:
+        pol = 0
+    
     ny = u.shape[0]
     nx = u.shape[1]
     
@@ -125,13 +147,22 @@ def line_integral_convolution(
             y = i
             fx = 0.5
             fy = 0.5
+            last_ui = 0
+            last_vi = 0
             
             k = kernellen//2
             #print i, j, k, x, y
             result[i,j] += kernel[k]*texture[y,x]
 
             while k<kernellen-1:
-                _advance(u[y,x],v[y,x],
+                ui = u[y,x]
+                vi = v[y,x]
+                if pol and (ui*last_ui+vi*last_vi)<0:
+                    ui = -ui
+                    vi = -vi
+                last_ui = ui
+                last_vi = vi
+                _advance(ui,vi,
                         &x, &y, &fx, &fy, nx, ny)
                 k+=1
                 #print i, j, k, x, y
@@ -141,11 +172,20 @@ def line_integral_convolution(
             y = i
             fx = 0.5
             fy = 0.5
+            last_ui = 0
+            last_vi = 0
    
             k = kernellen//2
    
             while k>0:
-                _advance(-u[y,x],-v[y,x],
+                ui = u[y,x]
+                vi = v[y,x]
+                if pol and (ui*last_ui+vi*last_vi)<0:
+                    ui = -ui
+                    vi = -vi
+                last_ui = ui
+                last_vi = vi
+                _advance(-ui,-vi,
                         &x, &y, &fx, &fy, nx, ny)
                 k-=1
                 #print i, j, k, x, y

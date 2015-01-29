@@ -1,16 +1,15 @@
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 vectorplot: Vector Fields Visualization Algorithms
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+==================================================
 
 :author: Anne Archibald 
 
 
 
 Line Integral Convolution
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 The Line Integral Convolution (LIC) is an algorithm used to image a vector
-field. It's main advantage is to show in intricate detail the fine 
+field. Its main advantage is to show in intricate detail the fine 
 structure of the vector field. It does not display the direction or 
 magnitude of the vectors, although this information can be color coded 
 in a postprocessing step. 
