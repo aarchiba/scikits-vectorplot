@@ -4,7 +4,7 @@ descr = """Algorithms to plot vector fields.
 For the moment, it only contains the line integral convolution
 algorithm."""
 
-DISTNAME            = 'scikits.vectorplot'
+DISTNAME            = 'scikits-vectorplot'
 DESCRIPTION         = 'Vector fields plotting algorithms.'
 LONG_DESCRIPTION    = descr
 MAINTAINER          = 'Anne Archibald',
@@ -14,7 +14,7 @@ LICENSE             = 'BSD'
 DOWNLOAD_URL        = URL
 PACKAGE_NAME        = 'vectorplot'
 EXTRA_INFO          = dict(
-    install_requires=['numpy'],
+    install_requires=['numpy','cython'],
     classifiers=['Development Status :: 1 - Planning',
                  'Intended Audience :: Developers',
                  'Intended Audience :: Science/Research',
